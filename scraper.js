@@ -1,17 +1,43 @@
-import puppeteer from "puppeteer";
+const playwright = require("playwright");
 
-const getData = async () => {
-  const browser = await puppeteer.launch({
-    headless: false,
-    defaultViewport: null,
+async function getData() {
+  const browser = await playwright.chromium.launch({
+    headless: false, // set this to true
   });
 
-  // Open a new page
   const page = await browser.newPage();
+  await page.goto("https://www.nasdaq.com/market-activity/earnings");
+  await page.waitForSelector(".time-belt__item");
+  var leftButton = await page.waitForSelector(".time-belt__prev");
+  var rightButton = await page.waitForSelector(".time-belt__next");
 
-  await page.goto("https://www.nasdaq.com/market-activity/earnings", {
-    waitUntil: "domcontentloaded",
-  });
-};
+  // Get to the start of the current week
+  while (1) {
+    var timeBeltElements = await page.$$(".time-belt__item");
+
+    // get the first and second dates in the list
+    var firstDateElement = timeBeltElements[0];
+    var secondDateElement = timeBeltElements[1];
+    // check if it's the start of the week by comparing the difference in date
+    var firstDT = await firstDateElement.getAttribute("data-day");
+    var secondDT = await secondDateElement.getAttribute("data-day");
+    datediff = secondDT - firstDT;
+    // if it's the start of a week, we should move so the second date is first
+    if (datediff != 1) {
+      // click the right button once, then break out
+      await rightButton.click();
+      // reselect the correct starting dates
+      var timeBeltElements = await page.$$(".time-belt__item");
+      var firstDateElement = timeBeltElements[0];
+      var secondDateElement = timeBeltElements[1];
+      break;
+    } else {
+      // click the left and keep going
+      await leftButton.click();
+    }
+  }
+
+  await browser.close();
+}
 
 getData();
