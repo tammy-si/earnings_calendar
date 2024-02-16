@@ -65,15 +65,28 @@ async function getData() {
     let firstDateElement = timeBeltElements[0];
     let firstday = await firstDateElement.getAttribute("data-day");
     let firstmonth = await firstDateElement.getAttribute("data-month");
-    weeklyData[`${firstmonth}-${firstday}`] = [];
+    let firstyear = await firstDateElement.getAttribute("data-year");
+    weeklyData[`${firstyear}-${firstmonth}-${firstday}`] = {};
     // Now go for 5 day and collect all the week dates
     for (let j = 0; j < 5; j++) {
       var timeBeltElements = await page.$$(".time-belt__item");
       let currDateElement = timeBeltElements[0];
       let currDay = await currDateElement.getAttribute("data-day");
       let currMonth = await currDateElement.getAttribute("data-month");
-      console.log(currMonth, currDay);
-      await rightButton.click();
+      let currYear = await currDateElement.getAttribute("data-year");
+
+      // get all the rows on current page
+      var allRows = await page.$$(".market-calendar-table__row");
+      for (let k = 0; k < allRows.length - 1; k++) {
+        let currRow = allRows[k];
+        let rowContent = await currRow.$$(
+          ".market-calendar-table__cell-content"
+        );
+        let timeCell = rowContent[0];
+        let timeImg = await timeCell.$("img");
+        let timeValue = await timeImg.getAttribute("alt");
+        console.log(timeValue);
+      }
     }
   }
   await browser.close();
