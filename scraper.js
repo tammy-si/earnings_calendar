@@ -82,12 +82,19 @@ async function getData() {
         let rowContent = await currRow.$$(
           ".market-calendar-table__cell-content"
         );
+        /* get the time value for the row */
         let timeCell = rowContent[0];
         let timeImg = await timeCell.$("img");
         let timeValue = await timeImg.getAttribute("alt");
-        console.log(timeValue);
+        /* get the symbol for the row */
+        let symbolCell = rowContent[1];
+        let symbolA = await symbolCell.$("a");
+        let symbolValue = await symbolA.innerText();
+        console.log(symbolValue);
       }
+      break;
     }
+    break;
   }
   await browser.close();
 }
