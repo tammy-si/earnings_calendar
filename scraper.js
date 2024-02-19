@@ -119,6 +119,8 @@ async function getData() {
           symbol: symbolValue,
           companyName: companyNameValue,
           marketCap: marketCapValue,
+          yahooLink: `https://finance.yahoo.com/quote/${symbol}/`,
+          img_url: null,
         });
       }
       await rightButton.click();
