@@ -74,7 +74,9 @@ async function getData() {
       let currDay = await currDateElement.getAttribute("data-day");
       let currMonth = await currDateElement.getAttribute("data-month");
       let currYear = await currDateElement.getAttribute("data-year");
-
+      weeklyData[`${firstyear}-${firstmonth}-${firstday}`][
+        `${currYear}-${currMonth}-${currDay}`
+      ] = [];
       // get all the rows on current page
       var allRows = await page.$$(".market-calendar-table__row");
       for (let k = 0; k < allRows.length - 1; k++) {
@@ -90,12 +92,39 @@ async function getData() {
         let symbolCell = rowContent[1];
         let symbolA = await symbolCell.$("a");
         let symbolValue = await symbolA.innerText();
-        console.log(symbolValue);
+        /* company Name*/
+        let companyNameCell = rowContent[2];
+        let companyNameValue = await companyNameCell.innerText();
+        /* market cap */
+        // have to check if the day has passed already cause market cap in different column
+        const notPassed = await page.evaluate((element) => {
+          return (
+            element.parentElement &&
+            element.parentElement.hasAttribute("data-column") &&
+            element.parentElement.getAttribute("data-column") == "marketCap"
+          );
+        }, rowContent[3]);
+        if (notPassed) {
+          var marketCapCell = rowContent[3];
+        } else {
+          var marketCapCell = rowContent[5];
+        }
+        let marketCapValue = await marketCapCell.innerText();
+
+        /* now with the values we just obtained, add to the daily data */
+        weeklyData[`${firstyear}-${firstmonth}-${firstday}`][
+          `${currYear}-${currMonth}-${currDay}`
+        ].push({
+          time: timeValue,
+          symbol: symbolValue,
+          companyName: companyNameValue,
+          marketCap: marketCapValue,
+        });
       }
-      break;
+      await rightButton.click();
     }
-    break;
   }
+  console.log(weeklyData);
   await browser.close();
 }
 
