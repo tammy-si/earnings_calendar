@@ -22,6 +22,7 @@ time_reporting
 var weeklyData = {};
 
 async function getData() {
+  // * connect to the mongoDB data base */
   const browser = await playwright.chromium.launch({
     headless: false,
   });
@@ -110,6 +111,7 @@ async function getData() {
           var marketCapCell = rowContent[5];
         }
         let marketCapValue = await marketCapCell.innerText();
+        marketCapValue = parseInt(marketCapValue.replace(/[^\d]/g, ""));
 
         /* now with the values we just obtained, add to the daily data */
         weeklyData[`${firstyear}-${firstmonth}-${firstday}`][
@@ -119,7 +121,7 @@ async function getData() {
           symbol: symbolValue,
           companyName: companyNameValue,
           marketCap: marketCapValue,
-          yahooLink: `https://finance.yahoo.com/quote/${symbol}/`,
+          yahooLink: `https://finance.yahoo.com/quote/${symbolValue}/`,
           img_url: null,
         });
       }
