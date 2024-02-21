@@ -11,7 +11,7 @@ const stockSchema = new Schema({
   time: String,
   symbol: String,
   companyName: String,
-  marketCap: Int32Array,
+  marketCap: Number,
   yahooLink: String,
   img_url: String,
 });

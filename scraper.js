@@ -1,5 +1,10 @@
 const playwright = require("playwright");
-
+const mongoose = require("mongoose");
+const { connectDB } = require("./helpers/connect.js");
+const Day = require("./models/dayModel");
+const Stock = require("./models/stockModel");
+const Week = require("./models/weekModel");
+const ObjectId = require("mongodb").ObjectId;
 // Stock info for the next 8 weeks, will be filled with day objects
 /*
 weeklyData
@@ -22,6 +27,11 @@ time_reporting
 var weeklyData = {};
 
 async function getData() {
+  await connectDB();
+  /* remove the old data */
+  Stock.collection.drop();
+  Day.collection.drop();
+  Week.collection.drop();
   // * connect to the mongoDB data base */
   const browser = await playwright.chromium.launch({
     headless: false,
@@ -67,7 +77,7 @@ async function getData() {
     let firstday = await firstDateElement.getAttribute("data-day");
     let firstmonth = await firstDateElement.getAttribute("data-month");
     let firstyear = await firstDateElement.getAttribute("data-year");
-    weeklyData[`${firstyear}-${firstmonth}-${firstday}`] = {};
+    var dayArray = [];
     // Now go for 5 day and collect all the week dates
     for (let j = 0; j < 5; j++) {
       var timeBeltElements = await page.$$(".time-belt__item");
@@ -75,9 +85,8 @@ async function getData() {
       let currDay = await currDateElement.getAttribute("data-day");
       let currMonth = await currDateElement.getAttribute("data-month");
       let currYear = await currDateElement.getAttribute("data-year");
-      weeklyData[`${firstyear}-${firstmonth}-${firstday}`][
-        `${currYear}-${currMonth}-${currDay}`
-      ] = [];
+      let stockArray = [];
+
       // get all the rows on current page
       var allRows = await page.$$(".market-calendar-table__row");
       for (let k = 0; k < allRows.length - 1; k++) {
@@ -113,10 +122,9 @@ async function getData() {
         let marketCapValue = await marketCapCell.innerText();
         marketCapValue = parseInt(marketCapValue.replace(/[^\d]/g, ""));
 
-        /* now with the values we just obtained, add to the daily data */
-        weeklyData[`${firstyear}-${firstmonth}-${firstday}`][
-          `${currYear}-${currMonth}-${currDay}`
-        ].push({
+        /* create a stock document and add the object with the data just obtained */
+        const newStock = new Stock({
+          _id: new ObjectId(),
           time: timeValue,
           symbol: symbolValue,
           companyName: companyNameValue,
@@ -124,12 +132,33 @@ async function getData() {
           yahooLink: `https://finance.yahoo.com/quote/${symbolValue}/`,
           img_url: null,
         });
+        newStock.save();
+        /* store the objectId of the stock in the day array */
+        stockArray.push(newStock._id);
       }
+
+      /* now create the day Object */
+      const newDay = new Day({
+        _id: new ObjectId(),
+        date: Date.parse(`${currYear}-${currMonth}-${currDay}`),
+        stocks: stockArray,
+      });
+      /* also store this day's id so we can add it to the weekly */
+      newDay.save();
+      dayArray.push(newDay._id);
       await rightButton.click();
     }
+
+    /* now we can make the object for that week */
+    const newWeek = new Week({
+      _id: new ObjectId(),
+      startingDay: Date.parse(`${firstyear}-${firstmonth}-${firstday}`),
+      days: dayArray,
+    });
+    newWeek.save();
   }
-  console.log(weeklyData);
   await browser.close();
+  mongoose.connection.close();
 }
 
 getData();
