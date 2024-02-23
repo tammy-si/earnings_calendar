@@ -55,9 +55,26 @@ async function getData() {
     // check if it's the start of the week by comparing the difference in date
     var firstDT = await firstDateElement.getAttribute("data-day");
     var secondDT = await secondDateElement.getAttribute("data-day");
+    // also get the second date's month
+    var secondDTMonth = await secondDateElement.getAttribute("data-month");
+    // the month and then the last day of the month before it
+    let monthChange = {
+      1: 31,
+      2: 31,
+      3: 28,
+      4: 31,
+      5: 30,
+      6: 31,
+      7: 30,
+      8: 31,
+      9: 31,
+      10: 30,
+      11: 31,
+      12: 30,
+    };
     datediff = secondDT - firstDT;
     // if it's the start of a week, we should move so the second date is first
-    if (datediff != 1) {
+    if (datediff != 1 && !(monthChange[secondDTMonth] == firstDT)) {
       // click the right button once, then break out
       await rightButton.click();
       break;
