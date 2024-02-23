@@ -99,6 +99,7 @@ async function getData() {
     for (let j = 0; j < 5; j++) {
       var timeBeltElements = await page.$$(".time-belt__item");
       let currDateElement = timeBeltElements[0];
+      currDateElement.click();
       let currDay = await currDateElement.getAttribute("data-day");
       let currMonth = await currDateElement.getAttribute("data-month");
       let currYear = await currDateElement.getAttribute("data-year");
@@ -137,15 +138,14 @@ async function getData() {
           var marketCapCell = rowContent[5];
         }
         let marketCapValue = await marketCapCell.innerText();
-        marketCapValue = parseInt(marketCapValue.replace(/[^\d]/g, ""));
-
+        marketCapValue = parseInt(marketCapValue.replace(/\D/g, ""));
         /* create a stock document and add the object with the data just obtained */
         const newStock = new Stock({
           _id: new ObjectId(),
           time: timeValue,
           symbol: symbolValue,
           companyName: companyNameValue,
-          marketCap: marketCapValue,
+          marketCap: isNaN(marketCapValue) ? null : marketCapValue,
           yahooLink: `https://finance.yahoo.com/quote/${symbolValue}/`,
           img_url: null,
         });
