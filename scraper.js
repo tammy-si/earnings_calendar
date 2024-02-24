@@ -45,6 +45,13 @@ async function getData() {
   var leftButton = await page.waitForSelector(".time-belt__prev");
   var rightButton = await page.waitForSelector(".time-belt__next");
 
+  /* also open a page to get the logo */
+  const logoPage = await browser.newPage();
+  await logoPage.goto(`https://clearbit.com/logo`, {
+    timeout: 100000,
+  });
+  logoPage.mouse.wheel((delta_x = 0), (delta_y = 300));
+
   // Get to the start of the current week
   while (1) {
     var timeBeltElements = await page.$$(".time-belt__item");
@@ -84,8 +91,8 @@ async function getData() {
     }
   }
 
-  // We go for 8 weeks
-  for (let w = 0; w < 8; w++) {
+  // We go for 4 weeks
+  for (let w = 0; w < 4; w++) {
     // each week we add a new week object with the weeks starting date
     // reselect the correct starting dates
     var timeBeltElements = await page.$$(".time-belt__item");
@@ -139,6 +146,9 @@ async function getData() {
         }
         let marketCapValue = await marketCapCell.innerText();
         marketCapValue = parseInt(marketCapValue.replace(/\D/g, ""));
+        /* get the logo for the stokc */
+        let img_url = await getLogo(logoPage, companyNameValue);
+        console.log(img_url);
         /* create a stock document and add the object with the data just obtained */
         const newStock = new Stock({
           _id: new ObjectId(),
@@ -147,7 +157,7 @@ async function getData() {
           companyName: companyNameValue,
           marketCap: isNaN(marketCapValue) ? null : marketCapValue,
           yahooLink: `https://finance.yahoo.com/quote/${symbolValue}/`,
-          img_url: null,
+          img_url: img_url,
         });
         newStock.save();
         /* store the objectId of the stock in the day array */
@@ -178,4 +188,44 @@ async function getData() {
   mongoose.connection.close();
 }
 
+/* logos from clearbit */
+/* must attribute with <a href="https://clearbit.com">Logos provided by Clearbit</a> */
+async function getLogo(logoPage, companyName) {
+  // curr is a trimmed version of the companyName
+  let curr = companyName;
+  var comp;
+  do {
+    /* no results for each string */
+    if (curr.length == 0) {
+      return null;
+    }
+    // input in
+    await logoPage.getByPlaceholder("Enter a company name...").fill(curr);
+    await logoPage.waitForTimeout(100);
+
+    // check if search gave a result
+    comp = await logoPage
+      .locator('//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]')
+      .isVisible();
+    /* keep trimming our search down in case the full name doesn't work */
+    curr = curr.substring(0, curr.lastIndexOf(" "));
+  } while (!comp);
+  /* search gave a result so we click on it */
+  let first = await logoPage.waitForSelector(
+    '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]'
+  );
+  await logoPage.waitForTimeout(200);
+
+  await logoPage.click(
+    '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]'
+  );
+  /* get the img_url and return it */
+  let element = await logoPage.waitForSelector(
+    '//*[@id="top"]/section[2]/div/div[2]/div[2]/img'
+  );
+  url = await element.getAttribute("src");
+  await logoPage.waitForTimeout(100);
+
+  return url;
+}
 getData();
