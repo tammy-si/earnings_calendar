@@ -1,11 +1,11 @@
 const playwright = require("playwright");
 const mongoose = require("mongoose");
 const { connectDB } = require("./helpers/connect.js");
-const Day = require("./models/dayModel");
-const Stock = require("./models/stockModel");
-const Week = require("./models/weekModel");
+const Day = require("./models/dayModel.js");
+const Stock = require("./models/stockModel.js");
+const Week = require("./models/weekModel.js");
 const ObjectId = require("mongodb").ObjectId;
-// Stock info for the next 8 weeks, will be filled with day objects
+// Stock info for the next 4 weeks, will be filled with day objects
 /*
 weeklyData
 Key: week start date
@@ -24,8 +24,6 @@ logo_url,
 report_date,
 time_reporting
 */
-var weeklyData = {};
-
 async function getData() {
   await connectDB();
   /* remove the old data */
@@ -193,6 +191,7 @@ async function getData() {
 async function getLogo(logoPage, companyName) {
   // curr is a trimmed version of the companyName
   let curr = companyName;
+  curr = curr.replace("Inc.", "");
   var comp;
   do {
     /* no results for each string */
@@ -204,27 +203,35 @@ async function getLogo(logoPage, companyName) {
     await logoPage.waitForTimeout(100);
 
     // check if search gave a result
-    comp = await logoPage
-      .locator('//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]')
-      .isVisible();
+    comp = await logoPage.$(
+      '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]'
+    );
+
     /* keep trimming our search down in case the full name doesn't work */
     curr = curr.substring(0, curr.lastIndexOf(" "));
-  } while (!comp);
-  /* search gave a result so we click on it */
-  let first = await logoPage.waitForSelector(
-    '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]'
-  );
-  await logoPage.waitForTimeout(200);
+  } while (!comp && curr.length > 0);
 
-  await logoPage.click(
+  let first = await logoPage.locator(
     '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]'
   );
+  await logoPage.waitForTimeout(100);
+  if (!first) {
+    console.log("null");
+    return null;
+  }
+  try {
+    await logoPage.click(
+      '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]',
+      { timeout: 1000 }
+    );
+  } catch {
+    return null;
+  }
   /* get the img_url and return it */
   let element = await logoPage.waitForSelector(
     '//*[@id="top"]/section[2]/div/div[2]/div[2]/img'
   );
   url = await element.getAttribute("src");
-  await logoPage.waitForTimeout(100);
 
   return url;
 }
