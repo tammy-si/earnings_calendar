@@ -14,7 +14,14 @@ app.get("/", async (req, res) => {
   console.log("testing");
   await connectDB();
   try {
-    const weeks = await Week.find({}).exec();
+    const weeks = await Week.find({})
+      .populate({
+        path: "days",
+        populate: {
+          path: "stocks",
+        },
+      })
+      .exec();
     return res.json(weeks);
   } catch (error) {
     res.status(500).json({ message: error.message });
