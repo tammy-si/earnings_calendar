@@ -8,9 +8,8 @@ function App() {
 }
 
 async function getWeeks() {
-  const response = await fetch("http://localhost:4000/", {
-    method: "GET",
-  });
+  const response = await fetch("http://localhost:4000/");
+  
   const weeks = await response.json();
   console.log(weeks);
 }
