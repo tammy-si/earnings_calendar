@@ -3,19 +3,20 @@
 function WeekHeader(props) {
   return (
     <>
-      <button>
+      {props.currWeekIndex > 0 && (
         <img
           src="/previous.png"
           alt="Previous button"
           onClick={props.changeWeekDown}
         />
-      </button>
+      )}
+
       <div className="weekHeader">
         <h1>Week of {props.currWeekDate}</h1>
       </div>
-      <button>
+      {props.currWeekIndex < 3 && (
         <img src="/next.png" alt="Next button" onClick={props.changeWeekUp} />
-      </button>
+      )}
     </>
   );
 }

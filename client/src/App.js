@@ -34,9 +34,9 @@ function App() {
     timeZone: "America/New_York", // US Eastern Time
   };
 
-  return (
-    <div className="App">
-      {data && (
+  if (data) {
+    return (
+      <div className="App">
         <WeekHeader
           changeWeekDown={changeWeekDown}
           changeWeekUp={changeWeekUp}
@@ -46,10 +46,9 @@ function App() {
           )}
           currWeekIndex={currWeek}
         ></WeekHeader>
-      )}
-      <h1>HI</h1>
-    </div>
-  );
+      </div>
+    );
+  }
 }
 
 async function getData() {
