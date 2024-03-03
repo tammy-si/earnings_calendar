@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import WeekHeader from "./components/weekHeader.js";
+import "./styles.css";
 
 function App() {
   // holds the index for the day we're on, initially 0
@@ -38,6 +39,7 @@ function App() {
     return (
       <div className="App">
         <WeekHeader
+          className="weekHeader"
           changeWeekDown={changeWeekDown}
           changeWeekUp={changeWeekUp}
           currWeekDate={new Date(data[currWeek]["startingDay"]).toLocaleString(
