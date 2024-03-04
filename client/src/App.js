@@ -32,10 +32,19 @@ function App() {
     year: "numeric",
     month: "long",
     day: "numeric",
-    timeZone: "America/New_York", // US Eastern Time
+    timeZone: "UTC", // US Eastern Time
   };
 
+  const dateoptionsDay = {
+    weekday: "long", // Display full weekday name
+    month: "numeric", // Display numeric month
+    day: "numeric", // Display numeric day of the month
+    timeZone: "UTC", // US Eastern Time
+  };
+
+  console.log(data);
   if (data) {
+    console.log(data[currWeek]["startingDay"]);
     return (
       <div className="App">
         <WeekHeader
@@ -48,6 +57,15 @@ function App() {
           )}
           currWeekIndex={currWeek}
         ></WeekHeader>
+        {data[currWeek]["days"].map((day, index) => {
+          return (
+            <div class="daySection">
+              <h1>
+                {new Date(day["date"]).toLocaleString("en-US", dateoptionsDay)}
+              </h1>
+            </div>
+          );
+        })}
       </div>
     );
   }

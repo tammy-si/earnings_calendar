@@ -63,10 +63,10 @@ async function getData() {
     // also get the second date's month
     var secondDTMonth = await secondDateElement.getAttribute("data-month");
     // the month and then the last day of the month before it
-    let monthChange = {
+    var monthChange = {
       1: 31,
       2: 31,
-      3: 28,
+      3: 29,
       4: 31,
       5: 30,
       6: 31,
@@ -79,7 +79,7 @@ async function getData() {
     };
     datediff = secondDT - firstDT;
     // if it's the start of a week, we should move so the second date is first
-    if (datediff != 1 && !(monthChange[secondDTMonth] == firstDT)) {
+    if (datediff != 1 && !(monthChange[Number(secondDTMonth)] == firstDT)) {
       // click the right button once, then break out
       await rightButton.click();
       break;
@@ -88,7 +88,6 @@ async function getData() {
       await leftButton.click();
     }
   }
-
   // We go for 4 weeks
   for (let w = 0; w < 4; w++) {
     // each week we add a new week object with the weeks starting date
