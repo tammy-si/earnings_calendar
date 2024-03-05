@@ -8,6 +8,7 @@ function App() {
   const [currWeek, setCurrWeek] = useState(0);
   // holds the data gotten from database
   const [data, setData] = useState();
+  const [changedData, setChangedDate] = useState();
 
   /* change week we're looking at */
   const changeWeekDown = (newWeek) => {
@@ -23,6 +24,7 @@ function App() {
     async function fetchData() {
       // You can await here
       setData(await getData());
+      setChangedDate(await getChangedData());
       // ...
     }
     fetchData();
@@ -43,9 +45,7 @@ function App() {
     timeZone: "UTC", // US Eastern Time
   };
 
-  if (data) {
-    console.log(data[currWeek]);
-
+  if (data && changedData) {
     return (
       <div className="App">
         <WeekHeader
@@ -59,7 +59,7 @@ function App() {
         ></WeekHeader>
         {data[currWeek]["days"].map((day, index) => {
           return (
-            <div class="daySection">
+            <div className="daySection">
               <h1>
                 {new Date(day["date"]).toLocaleString("en-US", dateoptionsDay)}
               </h1>
@@ -74,6 +74,7 @@ function App() {
                         stockSymbol={stock.symbol}
                         companyName={stock.companyName}
                         yahooLink={stock.yahooLink}
+                        changed={changedData}
                       ></Stock>
                     );
                   })}
@@ -89,6 +90,7 @@ function App() {
                         stockSymbol={stock.symbol}
                         companyName={stock.companyName}
                         yahooLink={stock.yahooLink}
+                        changed={changedData}
                       ></Stock>
                     );
                   })}
@@ -112,4 +114,14 @@ async function getData() {
   return weeks;
 }
 
+async function getChangedData() {
+  const response = await fetch("http://localhost:4000/changed");
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  const changed = await response.json();
+  return changed;
+}
 export default App;

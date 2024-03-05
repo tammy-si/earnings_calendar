@@ -3,9 +3,23 @@
 // <a target="_blank" href="https://icons8.com/icon/j1UxMbqzPi7n/no-image">No Image</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 function Stock(props) {
   const altText = `Logo for ` + props.companyName;
-  const img_url = props.img_url;
+  var img_url = props.img_url;
   const stockSymbol = props.stockSymbol;
   const yahooLink = props.yahooLink;
+  const changedData = props.changed;
+
+  /* also now change the image if it had to be manually modified */
+  var exists = changedData.filter(function (o) {
+    return o.symbol === stockSymbol;
+  });
+
+  /* modified before */
+  if (exists.length > 0) {
+    console.log(stockSymbol);
+    img_url =
+      changedData.find((o) => o.symbol === stockSymbol)?.img_url || img_url;
+  }
+
   return (
     <>
       <a href={yahooLink}>

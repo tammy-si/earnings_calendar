@@ -5,25 +5,7 @@ const Day = require("./models/dayModel.js");
 const Stock = require("./models/stockModel.js");
 const Week = require("./models/weekModel.js");
 const ObjectId = require("mongodb").ObjectId;
-// Stock info for the next 4 weeks, will be filled with day objects
-/*
-weeklyData
-Key: week start date
-Value: a list filled with dailyStocks objects
 
-dailyStock 
-Key: day date
-Value: list of stock objects
-
-Stock
-properties:
-symbol,
-name,
-market cap,
-logo_url,
-report_date,
-time_reporting
-*/
 async function getData() {
   await connectDB();
   /* remove the old data */
