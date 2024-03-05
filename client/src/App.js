@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import WeekHeader from "./components/weekHeader.js";
+import Stock from "./components/stockComponent.js";
 import "./styles.css";
 
 function App() {
@@ -42,13 +43,12 @@ function App() {
     timeZone: "UTC", // US Eastern Time
   };
 
-  console.log(data);
   if (data) {
-    console.log(data[currWeek]["startingDay"]);
+    console.log(data[currWeek]);
+
     return (
       <div className="App">
         <WeekHeader
-          className="weekHeader"
           changeWeekDown={changeWeekDown}
           changeWeekUp={changeWeekUp}
           currWeekDate={new Date(data[currWeek]["startingDay"]).toLocaleString(
@@ -63,6 +63,36 @@ function App() {
               <h1>
                 {new Date(day["date"]).toLocaleString("en-US", dateoptionsDay)}
               </h1>
+              <div className="beforeOpen">
+                {day["stocks"]
+                  .filter((obj) => obj.time === "time-pre-market")
+                  .slice(0, 10)
+                  .map((stock) => {
+                    return (
+                      <Stock
+                        img_url={stock.img_url}
+                        stockSymbol={stock.symbol}
+                        companyName={stock.companyName}
+                        yahooLink={stock.yahooLink}
+                      ></Stock>
+                    );
+                  })}
+              </div>
+              <div className="afterClose">
+                {day["stocks"]
+                  .filter((obj) => obj.time === "time-after-hours")
+                  .slice(0, 10)
+                  .map((stock) => {
+                    return (
+                      <Stock
+                        img_url={stock.img_url}
+                        stockSymbol={stock.symbol}
+                        companyName={stock.companyName}
+                        yahooLink={stock.yahooLink}
+                      ></Stock>
+                    );
+                  })}
+              </div>
             </div>
           );
         })}

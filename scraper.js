@@ -88,8 +88,10 @@ async function getData() {
       await leftButton.click();
     }
   }
+
   // We go for 4 weeks
   for (let w = 0; w < 4; w++) {
+    await page.waitForTimeout(100);
     // each week we add a new week object with the weeks starting date
     // reselect the correct starting dates
     var timeBeltElements = await page.$$(".time-belt__item");
@@ -102,8 +104,12 @@ async function getData() {
     // Now go for 5 day and collect all the week dates
     for (let j = 0; j < 5; j++) {
       var timeBeltElements = await page.$$(".time-belt__item");
-      let currDateElement = timeBeltElements[0];
-      currDateElement.click();
+      var currDateElement = timeBeltElements[0];
+      /* im trying to fix a duplicated day problem here */
+      for (let t = 0; t < 5; t++) {
+        await currDateElement.click();
+      }
+      await page.waitForTimeout(100);
       let currDay = await currDateElement.getAttribute("data-day");
       let currMonth = await currDateElement.getAttribute("data-month");
       let currYear = await currDateElement.getAttribute("data-year");
@@ -145,7 +151,6 @@ async function getData() {
         marketCapValue = parseInt(marketCapValue.replace(/\D/g, ""));
         /* get the logo for the stokc */
         let img_url = await getLogo(logoPage, companyNameValue);
-        console.log(img_url);
         /* create a stock document and add the object with the data just obtained */
         const newStock = new Stock({
           _id: new ObjectId(),
@@ -168,6 +173,7 @@ async function getData() {
         stocks: stockArray,
       });
       /* also store this day's id so we can add it to the weekly */
+      /* reconnect db just incase connection broke */
       newDay.save();
       dayArray.push(newDay._id);
       await rightButton.click();
@@ -191,45 +197,63 @@ async function getLogo(logoPage, companyName) {
   // curr is a trimmed version of the companyName
   let curr = companyName;
   curr = curr.replace("Inc.", "");
+  curr = curr.replace(",", "");
+  curr = curr.replace("Ltd", "");
+  curr = curr.replace("Corp", "");
+  curr = curr.replace("Co.", "");
+
+  await logoPage.getByPlaceholder("Enter a company name...").fill(" ");
+  await logoPage.waitForTimeout(100);
+
   var comp;
   do {
+    /* keep trimming our search down in case the full name doesn't work */
+    curr = curr.slice(0, -1);
     /* no results for each string */
     if (curr.length == 0) {
       return null;
     }
     // input in
-    await logoPage.getByPlaceholder("Enter a company name...").fill(curr);
+    try {
+      await logoPage.getByPlaceholder("Enter a company name...").fill(curr);
+    } catch {
+      return null;
+    }
     await logoPage.waitForTimeout(100);
 
     // check if search gave a result
     comp = await logoPage.$(
       '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]'
     );
-
-    /* keep trimming our search down in case the full name doesn't work */
-    curr = curr.substring(0, curr.lastIndexOf(" "));
   } while (!comp && curr.length > 0);
-
-  let first = await logoPage.locator(
-    '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]'
-  );
   await logoPage.waitForTimeout(100);
-  if (!first) {
-    console.log("null");
-    return null;
-  }
+
   try {
+    await logoPage.getByPlaceholder("Enter a company name...").fill(curr);
+    await logoPage.waitForTimeout(300);
+
+    let first = await logoPage.locator(
+      '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]'
+    );
+
+    if (!first) {
+      console.log("null");
+      return null;
+    }
+
     await logoPage.click(
       '//*[@id="top"]/section[2]/div/div[2]/div[1]/div/div/div[1]',
       { timeout: 1000 }
     );
+
+    await logoPage.waitForTimeout(300);
+    var element = await logoPage.waitForSelector(
+      '//*[@id="top"]/section[2]/div/div[2]/div[2]/img'
+    );
   } catch {
     return null;
   }
-  /* get the img_url and return it */
-  let element = await logoPage.waitForSelector(
-    '//*[@id="top"]/section[2]/div/div[2]/div[2]/img'
-  );
+
   url = await element.getAttribute("src");
 
   return url;
