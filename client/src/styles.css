@@ -1,14 +1,14 @@
 body {
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
 }
 
 #root {
-  height: 100vh;
+  min-height: 100vh;
 }
 .App {
   display: grid;
-  grid-template-rows: 10% 90%;
+  grid-template-rows: 5em 1fr;
   height: 100%;
   grid-template-columns: repeat(5, 1fr);
 }
@@ -37,24 +37,47 @@ body {
 .daySection {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 10% 90%;
+  grid-template-rows: 3em 1fr;
   text-align: center;
   border: 1px solid black;
   height: auto;
+  gap: 10px;
 }
 
 .daySection div {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.5em;
 }
+
+.daySection .beforeOpen,
+.daySection .afterClose {
+  border: 1px solid grey;
+}
+
 .daySection h1 {
   grid-column: 1 / 3;
+  margin: 0;
+}
+
+.daySection h3 {
+  margin: 0;
 }
 
 .stockItem {
-  padding: 0.1em;
+  display: block;
+  padding: 0.2em;
   border-radius: 12pt;
-  text-align: center;
+  align-items: center;
+  border: 1px solid black;
+  width: 90%;
+  height: auto;
+}
+
+.stockItem img {
+  width: 90%;
+  height: auto;
+  margin: auto;
 }
 
 .stockItem:hover {

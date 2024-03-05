@@ -64,6 +64,7 @@ function App() {
                 {new Date(day["date"]).toLocaleString("en-US", dateoptionsDay)}
               </h1>
               <div className="beforeOpen">
+                <h3>Before Open</h3>
                 {day["stocks"]
                   .filter((obj) => obj.time === "time-pre-market")
                   .slice(0, 10)
@@ -80,6 +81,7 @@ function App() {
                   })}
               </div>
               <div className="afterClose">
+                <h3>After Close</h3>
                 {day["stocks"]
                   .filter((obj) => obj.time === "time-after-hours")
                   .slice(0, 10)
