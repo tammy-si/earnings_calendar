@@ -39,4 +39,22 @@ app.get("/changed", async (req, res) => {
   }
 });
 
+app.get("/day/:id", async (req, res) => {
+  var { id } = req.params;
+  try {
+    const validObjectId = new ObjectId(id);
+
+    const dayData = await Day.findById(validObjectId).populate("stocks");
+
+    if (!dayData) {
+      return res.status(404).json({ error: "Day not found" });
+    }
+    // Send the retrieved dayData as JSON response
+    res.json(dayData);
+  } catch (error) {
+    console.error("Error fetching day data:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 app.listen(4000, () => console.log("Example app is listening on port 4000."));

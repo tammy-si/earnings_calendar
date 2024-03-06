@@ -13,10 +13,25 @@ function DayStock() {
 
   // fetch the data about the day from mongoDB using the id
   useEffect(() => {
-    console.log(id);
-  }, [location, id, dayData]);
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/day/" + id);
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const day = await response.json();
+        setDayData(day);
+      } catch (error) {
+        console.error("Error fetching day data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   if (dayData) {
+    console.log(dayData);
     return <h1>Hi</h1>;
   } else {
     return <h1>Error</h1>;
