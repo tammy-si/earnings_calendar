@@ -15,7 +15,6 @@ function Stock(props) {
 
   /* modified before */
   if (exists.length > 0) {
-    console.log(stockSymbol);
     img_url =
       changedData.find((o) => o.symbol === stockSymbol)?.img_url || img_url;
   }

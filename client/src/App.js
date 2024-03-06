@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import WeekHeader from "./components/weekHeader.js";
 import Stock from "./components/stockComponent.js";
 import "./styles.css";
+import { Link, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import DayStock from "./components/dayStocks.js";
 
 function App() {
   // holds the index for the day we're on, initially 0
@@ -47,60 +49,74 @@ function App() {
 
   if (data && changedData) {
     return (
-      <div className="App">
-        <WeekHeader
-          changeWeekDown={changeWeekDown}
-          changeWeekUp={changeWeekUp}
-          currWeekDate={new Date(data[currWeek]["startingDay"]).toLocaleString(
-            "en-US",
-            dateoptions
-          )}
-          currWeekIndex={currWeek}
-        ></WeekHeader>
-        {data[currWeek]["days"].map((day, index) => {
-          return (
-            <div className="daySection">
-              <h1>
-                {new Date(day["date"]).toLocaleString("en-US", dateoptionsDay)}
-              </h1>
-              <div className="beforeOpen">
-                <h3>Before Open</h3>
-                {day["stocks"]
-                  .filter((obj) => obj.time === "time-pre-market")
-                  .slice(0, 10)
-                  .map((stock) => {
-                    return (
-                      <Stock
-                        img_url={stock.img_url}
-                        stockSymbol={stock.symbol}
-                        companyName={stock.companyName}
-                        yahooLink={stock.yahooLink}
-                        changed={changedData}
-                      ></Stock>
-                    );
-                  })}
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <div className="App">
+                <WeekHeader
+                  changeWeekDown={changeWeekDown}
+                  changeWeekUp={changeWeekUp}
+                  currWeekDate={new Date(
+                    data[currWeek]["startingDay"]
+                  ).toLocaleString("en-US", dateoptions)}
+                  currWeekIndex={currWeek}
+                ></WeekHeader>
+                {data[currWeek]["days"].map((day) => {
+                  return (
+                    <div className="daySection">
+                      <Link className="dayHeader" to={`/day/${day._id}`}>
+                        <h1>
+                          {new Date(day["date"]).toLocaleString(
+                            "en-US",
+                            dateoptionsDay
+                          )}
+                        </h1>
+                      </Link>
+                      <div className="beforeOpen">
+                        <h3>Before Open</h3>
+                        {day["stocks"]
+                          .filter((obj) => obj.time === "time-pre-market")
+                          .slice(0, 10)
+                          .map((stock) => {
+                            return (
+                              <Stock
+                                img_url={stock.img_url}
+                                stockSymbol={stock.symbol}
+                                companyName={stock.companyName}
+                                yahooLink={stock.yahooLink}
+                                changed={changedData}
+                              ></Stock>
+                            );
+                          })}
+                      </div>
+                      <div className="afterClose">
+                        <h3>After Close</h3>
+                        {day["stocks"]
+                          .filter((obj) => obj.time === "time-after-hours")
+                          .slice(0, 10)
+                          .map((stock) => {
+                            return (
+                              <Stock
+                                img_url={stock.img_url}
+                                stockSymbol={stock.symbol}
+                                companyName={stock.companyName}
+                                yahooLink={stock.yahooLink}
+                                changed={changedData}
+                              ></Stock>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="afterClose">
-                <h3>After Close</h3>
-                {day["stocks"]
-                  .filter((obj) => obj.time === "time-after-hours")
-                  .slice(0, 10)
-                  .map((stock) => {
-                    return (
-                      <Stock
-                        img_url={stock.img_url}
-                        stockSymbol={stock.symbol}
-                        companyName={stock.companyName}
-                        yahooLink={stock.yahooLink}
-                        changed={changedData}
-                      ></Stock>
-                    );
-                  })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            }
+          />
+          <Route path="/day/:id" element={<DayStock />} />
+        </Routes>
+      </Router>
     );
   }
 }
