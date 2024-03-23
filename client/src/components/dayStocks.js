@@ -58,45 +58,51 @@ function DayStock() {
         </h1>
         <div className="before">
           <h2>Before Open</h2>
-          {beforeOpenStocks.map((stock) => {
-            return (
-              <Stock
-                img_url={stock.img_url}
-                stockSymbol={stock.symbol}
-                companyName={stock.companyName}
-                yahooLink={stock.yahooLink}
-                changed={changedData}
-              ></Stock>
-            );
-          })}
+          <div className="stockDiv">
+            {beforeOpenStocks.map((stock) => {
+              return (
+                <Stock
+                  img_url={stock.img_url}
+                  stockSymbol={stock.symbol}
+                  companyName={stock.companyName}
+                  yahooLink={stock.yahooLink}
+                  changed={changedData}
+                ></Stock>
+              );
+            })}
+          </div>
         </div>
         <div className="after">
           <h2>After Close</h2>
-          {afterCloseStock.map((stock) => {
-            return (
-              <Stock
-                img_url={stock.img_url}
-                stockSymbol={stock.symbol}
-                companyName={stock.companyName}
-                yahooLink={stock.yahooLink}
-                changed={changedData}
-              ></Stock>
-            );
-          })}
+          <div className="stockDiv">
+            {afterCloseStock.map((stock) => {
+              return (
+                <Stock
+                  img_url={stock.img_url}
+                  stockSymbol={stock.symbol}
+                  companyName={stock.companyName}
+                  yahooLink={stock.yahooLink}
+                  changed={changedData}
+                ></Stock>
+              );
+            })}
+          </div>
         </div>
         <div className="none">
-          <h2>Unknow Time</h2>
-          {noTimeStock.map((stock) => {
-            return (
-              <Stock
-                img_url={stock.img_url}
-                stockSymbol={stock.symbol}
-                companyName={stock.companyName}
-                yahooLink={stock.yahooLink}
-                changed={changedData}
-              ></Stock>
-            );
-          })}
+          <h2>Unknown Time</h2>
+          <div className="stockDiv">
+            {noTimeStock.map((stock) => {
+              return (
+                <Stock
+                  img_url={stock.img_url}
+                  stockSymbol={stock.symbol}
+                  companyName={stock.companyName}
+                  yahooLink={stock.yahooLink}
+                  changed={changedData}
+                ></Stock>
+              );
+            })}
+          </div>
         </div>
       </div>
     );

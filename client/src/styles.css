@@ -94,3 +94,28 @@ body {
 .stockItem:hover {
   background-color: lightgrey;
 }
+
+/* styling for a specific day */
+.dayStockDiv {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 10% 90%;
+  max-height: 100vh;
+}
+
+.before,
+.after,
+.none {
+  border: 1px solid black; /* Specifies a black solid border with a thickness of 2 pixels */
+}
+
+.dayStockDiv h1 {
+  grid-row: 1 /2;
+  grid-column: 1/4;
+  text-decoration: underline;
+}
+
+.dayStockDiv .stockDiv {
+  display: flex;
+  flex-wrap: wrap;
+}
